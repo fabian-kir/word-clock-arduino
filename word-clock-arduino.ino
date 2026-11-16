@@ -102,7 +102,7 @@ constexpr int WORD_VIER[2] = {120, 123};
 constexpr int WORD_FUENF[2] = {136, 139};
 constexpr int WORD_SECHS[2] = {96, 100};
 constexpr int WORD_SIEBEN[2] = {100, 105};
-constexpr int WORD_ACHT[2] = {140, 144};
+constexpr int WORD_ACHT[2] = {140, 143};  // was {140, 144}: index 144 is out of bounds (NUM_LEDS = 144)
 constexpr int WORD_NEUN[2] = {89, 92};
 constexpr int WORD_ZEHN[2] = {92, 95};          
 constexpr int WORD_ELF[2] = {129, 131};
@@ -140,16 +140,11 @@ void setupRtc() {
   }
 
 
-  RtcDateTime timeToSet = RtcDateTime(
-    2025,
-    1,
-    10,
-    19,
-    23,
-    10
-  );
-
-  rtc.SetDateTime(timeToSet);
+  // Only set the time if the RTC lost it (e.g. empty backup battery).
+  // Previously the time was overwritten with a hard-coded date on every boot.
+  if (!rtc.IsDateTimeValid()) {
+    rtc.SetDateTime(RtcDateTime(__DATE__, __TIME__));
+  }
 
 
 }
@@ -434,7 +429,7 @@ void loop() {
       
     case SET_COLOR:
       if (actionOccured) {
-        leds[1] = CRGB::Black; // For some really fckn weird reason the clock does not start blinking at 19:22:15 when this line of code is added wtf... wtf... this is the weirdst bug I've ever faced in all my life.
+        leds[1] = CRGB::Black; // Historical workaround for the out-of-bounds write in WORD_ACHT (now fixed); harmless, kept for safety.
 
         paletteIndex = (paletteIndex + 1) % NUM_COLORS;
 
@@ -534,15 +529,11 @@ void loop() {
     default:
 
 
-      // The 7 or 8 hour-bug occurs. No idea why the fuck this happens. might need to rely on the arduinos internal clock for this, maybe some strange workaround for that dont know yet. ignored for know.
-      
-      // globalClockState = SHOW_TIME;
-
+      // Unknown state: show a red pixel as an error indicator.
+      // (The former "7 or 8 o'clock bug" that landed here was caused by the
+      // out-of-bounds write in WORD_ACHT, which corrupted globalClockState.)
       leds[0] = CRGB::Red;
       FastLED.show();
-      // delay(1000);
-
-      // Solve this by somehow making the Arduino rely on its own time whenever we end up here.   
       break;
   }
 

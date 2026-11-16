@@ -14,7 +14,7 @@ Hardware, firmware, wiring and soldering are all my own. A photo will follow wit
 | LEDs | WS2812B strip, 144 LEDs, cut and laid out as a 12×12 matrix |
 | Real-time clock | DS1302 module (keeps time without power) |
 | Input | 2 push buttons (mode / action) |
-| Enclosure | Picture frame (Woolworth) with letter front plate |
+| Enclosure | Picture frame (Woolworth) |
 | Wiring | Hand-soldered connections between strip segments, RTC and buttons |
 
 **Pinout**
@@ -47,16 +47,17 @@ Hardware, firmware, wiring and soldering are all my own. A photo will follow wit
 
 ## Debugging story
 
-For a long time the clock went haywire around 7:25–8:00 and 19:25–20:00: it jumped into an undefined
-state and sometimes reacted to unrelated code changes ("adding this line makes the bug go away").
-The cause was an off-by-one in the LED map: the word ACHT was defined as LEDs 140–**144**, but the
-strip only has indices 0–143. Every time "acht" was shown, the firmware wrote past the end of the LED
-buffer and overwrote the variable holding the clock's state. It's a classic example of
-undefined behaviour: the symptoms showed up somewhere completely different from the bug.
+The first version had a bug I couldn't fix at the time: around 7 or 8 o'clock the clock jumped into an
+undefined state, and adding unrelated lines of code changed whether it happened.
+The most likely cause, found later in a code review, is an off-by-one in the LED map: the word ACHT was defined as LEDs 140–**144**, but the
+strip only has indices 0–143. Every time "acht" was shown (from about 7:23 to 8:22 and 19:23 to 20:22), the firmware wrote past the end of the LED
+buffer into neighbouring memory, which can overwrite the variable holding the clock's state. It's a classic example of
+undefined behaviour: the symptoms show up somewhere completely different from the bug. The fix is in the
+code; confirming it on the hardware is still on the to-do list.
 
 A second fix: the RTC was reset to a hard-coded date on every boot, so the time was lost after each
 power cut. It is now set only when the RTC reports an invalid time.
 
 ## Version 2 (planned)
 
-Photo/build documentation, cleaner wiring, and probably a light sensor for automatic brightness.
+Version 2 will come with photos and build documentation.

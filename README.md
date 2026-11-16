@@ -15,6 +15,7 @@ Hardware, firmware, wiring and soldering are all my own. A photo will follow wit
 | Real-time clock | DS1302 module (keeps time without power) |
 | Input | 2 push buttons (mode / action) |
 | Enclosure | Picture frame (Woolworth) |
+| Front plate | Chipboard with the letters cut out on a laser cutter, spray-painted black |
 | Wiring | Hand-soldered connections between strip segments, RTC and buttons |
 
 **Pinout**

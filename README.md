@@ -47,13 +47,16 @@ Hardware, firmware, wiring and soldering are all my own. A photo will follow wit
 
 ## Debugging story
 
-The first version had a bug I couldn't fix at the time: around 7 or 8 o'clock the clock jumped into an
-undefined state, and adding unrelated lines of code changed whether it happened.
-The most likely cause, found later in a code review, is an off-by-one in the LED map: the word ACHT was defined as LEDs 140–**144**, but the
-strip only has indices 0–143. Every time "acht" was shown (from about 7:23 to 8:22 and 19:23 to 20:22), the firmware wrote past the end of the LED
-buffer into neighbouring memory, which can overwrite the variable holding the clock's state. It's a classic example of
-undefined behaviour: the symptoms show up somewhere completely different from the bug. The fix is in the
-code; confirming it on the hardware is still on the to-do list.
+The first version had a bug that took me a while to track down: around 7 or 8 o'clock the clock jumped
+into an undefined state, and adding unrelated lines of code changed whether it happened.
+The cause was an off-by-one in the LED map: the word ACHT was defined as LEDs 140–**144**, but the
+strip only has indices 0–143. Every time "acht" was shown (from about 7:23 to 8:22 and 19:23 to 20:22),
+the firmware wrote past the end of the LED buffer and overwrote the variable holding the clock's state.
+It's a classic example of undefined behaviour: the symptoms showed up somewhere completely different
+from the bug.
+
+I found and fixed it shortly before the clock had to be finished, but the fix only ever made it onto
+the clock itself, not into this repository. The code here has since been brought back in line.
 
 A second fix: the RTC was reset to a hard-coded date on every boot, so the time was lost after each
 power cut. It is now set only when the RTC reports an invalid time.
